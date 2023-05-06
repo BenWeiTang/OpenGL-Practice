@@ -18,6 +18,7 @@
 
 #include "test/TestClearColor.h"
 #include "test/TestTexture2D.h"
+#include "test/RotateCubeTest.h"
 
 int main(void)
 {
@@ -57,6 +58,7 @@ int main(void)
 
     testMenu->RegisterTest<test::TestClearColor>("Clear Color");
     testMenu->RegisterTest<test::TestTexture2D>("Texture 2D");
+    testMenu->RegisterTest<test::RotateCubeTest>("Rotate Cube");
 
 
     while (!glfwWindowShouldClose(window))
@@ -67,7 +69,7 @@ int main(void)
         ImGui_ImplGlfwGL3_NewFrame();
         if (currentTest)
         {
-            currentTest->OnUpdate(0.0f);
+            currentTest->OnUpdate(0.01f);
             currentTest->OnRender();
             ImGui::Begin("Test");
             if (currentTest != testMenu && ImGui::Button("<-"))
