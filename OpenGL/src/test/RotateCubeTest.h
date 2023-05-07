@@ -32,5 +32,10 @@ namespace test
 		glm::mat4 m_View;
 		glm::mat4 m_Proj;
 		glm::vec3 m_CubePositions[10];
+		glm::vec3 m_CameraPos;
+		glm::vec3 m_CameraTarget;
+		glm::vec3 m_CameraDir;
+		glm::vec3 m_CameraRight;
+		glm::vec3 m_CameraUp;
 	};
 }

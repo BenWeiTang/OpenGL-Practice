@@ -11,7 +11,6 @@ namespace test
 {
 	RotateCubeTest::RotateCubeTest()
 		: m_Model(glm::rotate(glm::mat4(1.0f), glm::radians(-55.0f), glm::vec3(0.0f, 1.0f, 0.0f))),
-		m_View(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -3.0f))),
 		m_Proj(glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f)),
 		m_CubePositions{
 			glm::vec3(0.0f,  0.0f,  0.0f),
@@ -23,7 +22,13 @@ namespace test
 			glm::vec3(1.3f, -2.0f, -2.5f),
 			glm::vec3(1.5f,  2.0f, -2.5f),
 			glm::vec3(1.5f,  0.2f, -1.5f),
-			glm::vec3(-1.3f,  1.0f, -1.5f) }
+			glm::vec3(-1.3f,  1.0f, -1.5f) },
+		m_CameraPos(glm::vec3(0.0f, 0.0f, 3.0f)),
+		m_CameraTarget(glm::vec3(0.0f, 0.0f, 0.0f)),
+		m_CameraDir(glm::normalize(m_CameraPos - m_CameraTarget)), // In OpenGL, the look direction is reversed
+		m_CameraRight(glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), m_CameraDir))), // Using a temp world up vector to get right vector, (Again, the dir vector is a bit weird)
+		m_CameraUp(glm::normalize(glm::cross(m_CameraDir, m_CameraUp))),
+		m_View(glm::lookAt(m_CameraPos, m_CameraTarget, m_CameraUp)) // (0, 0, 3), (0, 0, 0), and (0, 1, 0)
 	{
 		float pos[8][3] =
 		{
@@ -114,7 +119,7 @@ namespace test
 	}
 
 	void RotateCubeTest::OnUpdate(float detaTime)
-	{	
+	{
 	}
 
 	void RotateCubeTest::OnRender()
@@ -122,12 +127,13 @@ namespace test
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		Renderer renderer;
+		float radius = 10.0f;
+		float camX = glm::sin(glfwGetTime()) * radius;
+		float camZ = glm::cos(glfwGetTime()) * radius;
+		m_View = glm::lookAt(glm::vec3(camX, 0.0f, camZ), m_CameraTarget, glm::vec3(0.0f, 1.0f, 0.0f));
+		m_Shader->SetUniformMat4("u_View", m_View);
 
-		// Drawing one cube
-		//m_Model = glm::rotate(m_Model, (float)glfwGetTime(), glm::normalize(glm::vec3(0.5f, 1.0f, 0.0f)));
-		//m_Shader->SetUniformMat4("u_Model", m_Model);
-		//renderer.Draw(*m_VAO, *m_IBO, *m_Shader);
+		Renderer renderer;
 
 		// Drawing ten cubes
 		for (unsigned int i = 0; i < 10; i++)
