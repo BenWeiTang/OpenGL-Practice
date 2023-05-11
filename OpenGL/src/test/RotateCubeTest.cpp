@@ -4,6 +4,7 @@
 
 #include "glm/gtc/matrix_transform.hpp"
 #include "GLFW/glfw3.h"
+#include "imgui/imgui.h"
 
 #include <iostream>
 
@@ -132,7 +133,6 @@ namespace test
 		float radius = 10.0f;
 		float camX = glm::sin(glfwGetTime()) * radius;
 		float camZ = glm::cos(glfwGetTime()) * radius;
-		//m_View = glm::lookAt(glm::vec3(camX, 0.0f, camZ), m_CameraTarget, glm::vec3(0.0f, 1.0f, 0.0f));
 		m_View = m_Camera->GetViewMatrix();
 		m_Shader->SetUniformMat4("u_View", m_View);
 
@@ -151,5 +151,6 @@ namespace test
 
 	void RotateCubeTest::OnImGuiRender()
 	{
+		ImGui::Text("Press ESC to show cursor again.");
 	}
 }

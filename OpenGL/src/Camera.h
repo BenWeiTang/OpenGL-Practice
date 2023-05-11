@@ -3,17 +3,8 @@
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 
-// Possible movements of the camera
-enum class CameraMovement
-{
-	FORWARD,
-	BACKWARD,
-	LEFT,
-	RIGHT
-};
-
 // Default values for camera
-const float YAW = -90.0f;
+const float YAW = 0.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5F;
 const float SENSITIVITY = 0.1f;
@@ -34,15 +25,18 @@ private:
 	glm::vec3 m_Right;
 	const glm::vec3 m_WorldUp;
 
+	class GLFWwindow* m_Window;
+
 	float m_Yaw;
 	float m_Pitch;
 	float m_Speed;
 	float m_MouseSensitivity;
-	float m_Zoom;
+	float m_MouseLastX;
+	float m_MouseLastY;
+	bool m_FirstMouse; // Flag to aviod huge mouse shake in the beginning
 
-	class GLFWwindow* m_Window;
-
-	void MoveCamera(CameraMovement direction, float deltaTime);
+	void MoveCamera(float deltaTime);
 	void RotateCamera();
+	void UpdateCursorState();
 };
 
