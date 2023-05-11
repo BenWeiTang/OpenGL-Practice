@@ -6,6 +6,7 @@
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
 #include "Texture.h"
+#include "Camera.h"
 
 #include <memory>
 
@@ -27,6 +28,7 @@ namespace test
 		std::unique_ptr<IndexBuffer> m_IBO;
 		std::unique_ptr<Shader> m_Shader;
 		std::unique_ptr<Texture> m_Texture;
+		std::unique_ptr<Camera> m_Camera;
 
 		glm::mat4 m_Model;
 		glm::mat4 m_View;

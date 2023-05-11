@@ -60,16 +60,22 @@ int main(void)
     testMenu->RegisterTest<test::TestTexture2D>("Texture 2D");
     testMenu->RegisterTest<test::RotateCubeTest>("Rotate Cube");
 
+    float deltaTime = 0.0f;
+    float lastFrame = 0.0f;
 
     while (!glfwWindowShouldClose(window))
     {
         GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
         renderer.Clear();
 
+        float currentFrame = glfwGetTime();
+        deltaTime = currentFrame - lastFrame;
+        lastFrame = currentFrame;
+
         ImGui_ImplGlfwGL3_NewFrame();
         if (currentTest)
         {
-            currentTest->OnUpdate(0.01f);
+            currentTest->OnUpdate(deltaTime);
             currentTest->OnRender();
             ImGui::Begin("Test");
             if (currentTest != testMenu && ImGui::Button("<-"))
