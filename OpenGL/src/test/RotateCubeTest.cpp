@@ -130,9 +130,6 @@ namespace test
 		GLCall(glClearColor(0.0f, 0.0f, 0.0f, 1.0f));
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
-		float radius = 10.0f;
-		float camX = glm::sin(glfwGetTime()) * radius;
-		float camZ = glm::cos(glfwGetTime()) * radius;
 		m_View = m_Camera->GetViewMatrix();
 		m_Shader->SetUniformMat4("u_View", m_View);
 
