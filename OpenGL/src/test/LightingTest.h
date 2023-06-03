@@ -1,24 +1,21 @@
 #pragma once
 
 #include "Test.h"
-
 #include "VertexArray.h"
 #include "VertexBuffer.h"
 #include "VertexBufferLayout.h"
-#include "Texture.h"
 #include "Camera.h"
-
 #include <memory>
 
 namespace test
 {
-	class RotateCubeTest : public Test
+	class LightingTest : public Test
 	{
 	public:
-		RotateCubeTest();
-		~RotateCubeTest();
+		LightingTest();
+		virtual ~LightingTest();
 
-		void OnUpdate(float detaTime) override;
+		void OnUpdate(float deltatTime) override;
 		void OnRender() override;
 		void OnImGuiRender() override;
 
@@ -27,12 +24,10 @@ namespace test
 		std::unique_ptr<VertexBuffer> m_VBO;
 		std::unique_ptr<IndexBuffer> m_IBO;
 		std::unique_ptr<Shader> m_Shader;
-		std::unique_ptr<Texture> m_Texture;
 		std::unique_ptr<Camera> m_Camera;
 
 		glm::mat4 m_Model;
 		glm::mat4 m_View;
 		glm::mat4 m_Proj;
-		glm::vec3 m_CubePositions[10];
 	};
 }
