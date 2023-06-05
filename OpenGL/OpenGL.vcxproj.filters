@@ -492,6 +492,7 @@
     <None Include="res\shaders\CubeShader.shader" />
     <None Include="res\shaders\LightingCube.shader" />
     <None Include="res\shaders\ComputeShader.shader" />
+    <None Include="res\shaders\ScreenQuad.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
