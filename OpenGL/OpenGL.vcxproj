@@ -153,6 +153,7 @@
     <ClCompile Include="src\IndexBuffer.cpp" />
     <ClCompile Include="src\Renderer.cpp" />
     <ClCompile Include="src\Shader.cpp" />
+    <ClCompile Include="src\test\BoidTest.cpp" />
     <ClCompile Include="src\test\ComputeShaderTest.cpp" />
     <ClCompile Include="src\test\LightingTest.cpp" />
     <ClCompile Include="src\test\RotateCubeTest.cpp" />
@@ -171,6 +172,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
+    <None Include="res\shaders\BoidComputeShader.shader" />
     <None Include="res\shaders\ComputeShader.shader" />
     <None Include="res\shaders\CubeShader.shader" />
     <None Include="res\shaders\LightingCube.shader" />
@@ -318,6 +320,7 @@
     <ClInclude Include="src\IndexBuffer.h" />
     <ClInclude Include="src\Renderer.h" />
     <ClInclude Include="src\Shader.h" />
+    <ClInclude Include="src\test\BoidTest.h" />
     <ClInclude Include="src\test\ComputeShaderTest.h" />
     <ClInclude Include="src\test\LightingTest.h" />
     <ClInclude Include="src\test\RotateCubeTest.h" />

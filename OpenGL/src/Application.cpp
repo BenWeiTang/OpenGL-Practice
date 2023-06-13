@@ -7,11 +7,10 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 
-#include "test/TestClearColor.h"
-#include "test/TestTexture2D.h"
 #include "test/RotateCubeTest.h"
 #include "test/LightingTest.h"
 #include "test/ComputeShaderTest.h"
+#include "test/BoidTest.h"
 
 int main(void)
 {
@@ -54,6 +53,7 @@ int main(void)
     testMenu->RegisterTest<test::RotateCubeTest>("Rotate Cube");
     testMenu->RegisterTest<test::LightingTest>("Lighting Test");
     testMenu->RegisterTest<test::ComputeShaderTest>("ComputeShader");
+    testMenu->RegisterTest<test::BoidTest>("Boid");
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;
