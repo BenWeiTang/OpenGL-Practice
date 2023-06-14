@@ -26,6 +26,12 @@ void ComputeShader::Unbinde() const
     GLCall(glUseProgram(0));
 }
 
+void ComputeShader::SetUniform1f(const std::string& name, float value)
+{
+	GLint location = GetUniformLocation(name);
+	GLCall(glUniform1f(location, value));
+}
+
 std::string ComputeShader::ParseComputeShader(const std::string& filePath)
 {
 	std::ifstream stream(m_FilePath);
@@ -74,4 +80,13 @@ unsigned int ComputeShader::CreateComputeShader(const std::string& shader)
     GLCall(glDeleteShader(cs));
 
     return program;
+}
+
+int ComputeShader::GetUniformLocation(const std::string& name) const
+{
+	if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
+		return m_UniformLocationCache[name];
+	int location = glGetUniformLocation(m_RendererID, name.c_str());
+	m_UniformLocationCache[name] = location;
+	return location;
 }

@@ -19,5 +19,7 @@ namespace test
 		const unsigned int m_BoidCount;
 		std::unique_ptr<ComputeShader> m_ComputeShader;
 		unsigned int m_PositionSSBO;
+		unsigned int m_VelocitySSBO;
+		unsigned int m_AccelerationSSBO;
 	};
 }
