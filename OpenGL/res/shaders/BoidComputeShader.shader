@@ -21,8 +21,7 @@ uint index = gl_GlobalInvocationID.x; // For some reason, this cannot be const??
 const float VIEW_DIST = 5.0;
 const float INVERSE_VIEW_DIST = 1.0 / VIEW_DIST;
 const float VIEW_DIST_SQUARED = VIEW_DIST * VIEW_DIST;
-//const float VIEW_ANGLE = 270.0;
-const float BOUNDARY = 100.0;
+const float BOUNDARY = 50.0;
 
 bool IsValidOther(uint i, uint j);
 vec4 Seperate();
@@ -32,10 +31,12 @@ void Wrap();
 
 void main()
 {
+	index = gl_GlobalInvocationID.x;
+	Wrap();
 	positions[index] += u_DeltaTime * velocities[index];
 	velocities[index] += u_DeltaTime * accelerations[index];
-	accelerations[index] = Seperate() + Align() + Cohere(); //TODO: Check if * u_DeltaTime is needed
-	Wrap();
+	//accelerations[index] = (Seperate() + Align() + Cohere()) * u_DeltaTime; //TODO: Check if * u_DeltaTime is needed
+	accelerations[index] = Seperate() + Align() + Cohere();
 }
 
 bool IsValidOther(uint i, uint j)
@@ -54,8 +55,7 @@ vec4 Seperate()
 	for (uint i = 0; i < gl_NumWorkGroups.x; i++)
 	{
 		if (!IsValidOther(index, i)) continue;
-		//desired += (VIEW_DIST * normalize(positions[index] - positions[i]) / distance(positions[index], positions[i]));
-		desired += -INVERSE_VIEW_DIST * distance(positions[index], positions[i]) + 1;
+		desired += vec4(1.0, 1.0, 1.0, 0.0) - INVERSE_VIEW_DIST * (positions[i] - positions[index]);
 		count++;
 	}
 	if (count != 0) desired /= count;
@@ -110,7 +110,7 @@ void Wrap()
 	if (positions[index].y > BOUNDARY) positions[index].y = -BOUNDARY;
 	else if (positions[index].y < -BOUNDARY) positions[index].y = BOUNDARY;
 
-	// Y component
+	// Z component
 	if (positions[index].z > BOUNDARY) positions[index].z = -BOUNDARY;
 	else if (positions[index].z < -BOUNDARY) positions[index].z = BOUNDARY;
 }

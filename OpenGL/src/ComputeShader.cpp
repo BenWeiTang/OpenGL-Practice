@@ -82,11 +82,11 @@ unsigned int ComputeShader::CreateComputeShader(const std::string& shader)
     return program;
 }
 
-int ComputeShader::GetUniformLocation(const std::string& name) const
+GLint ComputeShader::GetUniformLocation(const std::string& name) const
 {
 	if (m_UniformLocationCache.find(name) != m_UniformLocationCache.end())
 		return m_UniformLocationCache[name];
-	int location = glGetUniformLocation(m_RendererID, name.c_str());
+	GLint location = glGetUniformLocation(m_RendererID, name.c_str());
 	m_UniformLocationCache[name] = location;
 	return location;
 }

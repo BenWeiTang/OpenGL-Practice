@@ -1,6 +1,12 @@
 #pragma once
 #include "Test.h"
+#include "Shader.h"
 #include "ComputeShader.h"
+#include "Camera.h"
+#include "VertexArray.h"
+#include "VertexBuffer.h"
+#include "VertexBufferLayout.h"
+#include "IndexBuffer.h"
 #include <memory>
 
 namespace test
@@ -8,7 +14,7 @@ namespace test
 	class BoidTest : public Test
 	{
 	public:
-		BoidTest(unsigned int boidCount = 1024);
+		BoidTest(unsigned int boidCount = 512);
 		virtual ~BoidTest();
 
 		virtual void OnUpdate(float deltaTime) override;
@@ -21,5 +27,10 @@ namespace test
 		unsigned int m_PositionSSBO;
 		unsigned int m_VelocitySSBO;
 		unsigned int m_AccelerationSSBO;
+		std::unique_ptr<Camera> m_Camera;
+		std::unique_ptr<Shader> m_BoidShader;
+		std::unique_ptr<VertexArray> m_VAO;
+		std::unique_ptr<VertexBuffer> m_VBO;
+		std::unique_ptr<IndexBuffer> m_IBO;
 	};
 }

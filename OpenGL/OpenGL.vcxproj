@@ -173,6 +173,7 @@
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
     <None Include="res\shaders\BoidComputeShader.shader" />
+    <None Include="res\shaders\BoidShader.shader" />
     <None Include="res\shaders\ComputeShader.shader" />
     <None Include="res\shaders\CubeShader.shader" />
     <None Include="res\shaders\LightingCube.shader" />

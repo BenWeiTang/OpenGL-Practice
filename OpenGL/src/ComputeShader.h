@@ -1,13 +1,14 @@
 #pragma once
 #include <string>
 #include <unordered_map>
+#include "GL/glew.h"
 
 class ComputeShader
 {
 private:
 	unsigned int m_RendererID;
 	std::string m_FilePath;
-	mutable std::unordered_map<std::string, int> m_UniformLocationCache;
+	mutable std::unordered_map<std::string, GLint> m_UniformLocationCache;
 public:
 	ComputeShader(const std::string& filePath);
 	~ComputeShader();
@@ -20,5 +21,5 @@ private:
 	std::string ParseComputeShader(const std::string& filePath);
 	unsigned int CompileComputeShader(const std::string& source);
 	unsigned int CreateComputeShader(const std::string& shader);
-	int GetUniformLocation(const std::string& name) const;
+	GLint GetUniformLocation(const std::string& name) const;
 };
