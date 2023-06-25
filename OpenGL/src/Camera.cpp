@@ -44,6 +44,11 @@ void Camera::Update(float deltaTime)
 	RotateCamera();
 }
 
+void Camera::SetCameraPosition(glm::vec3 newPosition)
+{
+	m_Position = newPosition;
+}
+
 void Camera::MoveCamera(float deltaTime)
 {
 	float velocity = m_Speed * deltaTime;

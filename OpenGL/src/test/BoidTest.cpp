@@ -1,6 +1,8 @@
 #include "BoidTest.h"
 #include "GL/glew.h"
 #include "imgui/imgui.h"
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
 #include <iostream>
 #include <cstdlib>
 
@@ -9,8 +11,8 @@ namespace test
 	BoidTest::BoidTest(unsigned int boidCount)
 		: m_BoidCount(boidCount)
 		, m_ComputeShader(std::make_unique<ComputeShader>("res/shaders/BoidcomputeShader.shader"))
-		, m_Camera(std::make_unique<Camera>())
 		, m_BoidShader(std::make_unique<Shader>("res/shaders/BoidShader.shader"))
+		, m_SeperationFactor(1.0f), m_AlignmentFactor(1.0f), m_CohesionFactor(1.0f)
 	{
 		float* pos = new float[m_BoidCount * 4]{};
 		float* vel = new float[m_BoidCount * 4]{};
@@ -88,8 +90,7 @@ namespace test
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
 		// For every vertex, there are 4 floats for the positions and 1 uint for the index
 		// For every boid (pyramid), there are 5 vertices
-		//TODO: check if can swap back to GL_STATIC_DRAW
-		GLCall(glBufferData(GL_ARRAY_BUFFER, 5 * m_BoidCount * (4 * sizeof(float) + sizeof(unsigned int)), nullptr, GL_DYNAMIC_DRAW));
+		GLCall(glBufferData(GL_ARRAY_BUFFER, 5 * m_BoidCount * (4 * sizeof(float) + sizeof(unsigned int)), nullptr, GL_STATIC_DRAW));
 		// Vertex positions
 		// Pack all positional data in the beginning of the VBO
 		for (int i = 0; i < m_BoidCount; i++)
@@ -128,7 +129,9 @@ namespace test
 		delete[] indices;
 
 		m_BoidShader->Bind();
-		m_BoidShader->SetUniformMat4("u_Projection", glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 100.0f));
+		glm::mat4 viewMatrix = glm::lookAt(glm::vec3(100.0f, 100.0f, -100.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_BoidShader->SetUniformMat4("u_View", viewMatrix);
+		m_BoidShader->SetUniformMat4("u_Projection", glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 300.0f));
 	}
 
 	BoidTest::~BoidTest()
@@ -137,10 +140,12 @@ namespace test
 
 	void BoidTest::OnUpdate(float deltaTime)
 	{
-		m_Camera->Update(deltaTime);
 		m_ComputeShader->Bind();
 		m_ComputeShader->SetUniform1f("u_DeltaTime", deltaTime);
-		GLCall(glDispatchCompute(m_BoidCount,1,1));
+		m_ComputeShader->SetUniform1f("u_SeperationFactor", m_SeperationFactor);
+		m_ComputeShader->SetUniform1f("u_AlignmentFactor", m_AlignmentFactor);
+		m_ComputeShader->SetUniform1f("u_CohesionFactor", m_CohesionFactor);
+		GLCall(glDispatchCompute(m_BoidCount / 1024,1,1));
 		GLCall(glMemoryBarrier(GL_ALL_BARRIER_BITS));
 	}
 
@@ -150,7 +155,6 @@ namespace test
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 		m_BoidShader->Bind();
-		m_BoidShader->SetUniformMat4("u_View", m_Camera->GetViewMatrix());
 		GLCall(glBindVertexArray(m_VAO));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
 		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
@@ -160,6 +164,11 @@ namespace test
 	void BoidTest::OnImGuiRender()
 	{
 		ImGui::Text("Press ESC to show cursor again.");
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::Begin("Controls");
+		ImGui::DragFloat("Seperation", &m_SeperationFactor, 0.1f, 0.0f, 10.0f);
+		ImGui::DragFloat("Alignment", &m_AlignmentFactor, 0.1f, 0.0f, 10.0f);
+		ImGui::DragFloat("Cohesion", &m_CohesionFactor, 0.1f, 0.0f, 10.0f);
+		ImGui::End();
 	}
 }

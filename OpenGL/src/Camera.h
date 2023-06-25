@@ -17,6 +17,7 @@ public:
 	~Camera();
 	void Update(float deltaTime);
 	inline glm::mat4 GetViewMatrix() const { return glm::lookAt(m_Position, m_Position + m_Front, m_Up); }
+	void SetCameraPosition(glm::vec3 newPosition);
 
 private:
 	glm::vec3 m_Position;
