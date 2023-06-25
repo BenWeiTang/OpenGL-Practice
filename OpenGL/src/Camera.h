@@ -4,7 +4,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 
 // Default values for camera
-const float YAW = 0.0f;
+const float YAW = 90.0f;
 const float PITCH = 0.0f;
 const float SPEED = 2.5F;
 const float SENSITIVITY = 0.1f;
@@ -17,6 +17,7 @@ public:
 	~Camera();
 	void Update(float deltaTime);
 	inline glm::mat4 GetViewMatrix() const { return glm::lookAt(m_Position, m_Position + m_Front, m_Up); }
+	void SetCameraPosition(glm::vec3 newPosition);
 
 private:
 	glm::vec3 m_Position;

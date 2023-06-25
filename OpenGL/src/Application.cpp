@@ -7,9 +7,10 @@
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw_gl3.h"
 
-#include "test/TestClearColor.h"
-#include "test/TestTexture2D.h"
 #include "test/RotateCubeTest.h"
+#include "test/LightingTest.h"
+#include "test/ComputeShaderTest.h"
+#include "test/BoidTest.h"
 
 int main(void)
 {
@@ -18,6 +19,8 @@ int main(void)
     if (!glfwInit())
         return -1;
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     window = glfwCreateWindow(960, 540, "OpenGL Practice", NULL, NULL);
     if (!window)
     {
@@ -47,9 +50,10 @@ int main(void)
     test::TestMenu* testMenu = new test::TestMenu(currentTest);
     currentTest = testMenu;
 
-    testMenu->RegisterTest<test::TestClearColor>("Clear Color");
-    testMenu->RegisterTest<test::TestTexture2D>("Texture 2D");
     testMenu->RegisterTest<test::RotateCubeTest>("Rotate Cube");
+    testMenu->RegisterTest<test::LightingTest>("Lighting Test");
+    testMenu->RegisterTest<test::ComputeShaderTest>("ComputeShader");
+    testMenu->RegisterTest<test::BoidTest>("Boid");
 
     float deltaTime = 0.0f;
     float lastFrame = 0.0f;

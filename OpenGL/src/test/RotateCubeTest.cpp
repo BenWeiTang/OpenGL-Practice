@@ -24,12 +24,6 @@ namespace test
 			glm::vec3(1.5f,  2.0f, -2.5f),
 			glm::vec3(1.5f,  0.2f, -1.5f),
 			glm::vec3(-1.3f,  1.0f, -1.5f) },
-		m_CameraPos(glm::vec3(0.0f, 0.0f, 3.0f)),
-		m_CameraTarget(glm::vec3(0.0f, 0.0f, 0.0f)),
-		m_CameraDir(glm::normalize(m_CameraPos - m_CameraTarget)), // In OpenGL, the look direction is reversed
-		m_CameraRight(glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), m_CameraDir))), // Using a temp world up vector to get right vector, (Again, the dir vector is a bit weird)
-		m_CameraUp(glm::normalize(glm::cross(m_CameraDir, m_CameraUp))),
-		m_View(glm::lookAt(m_CameraPos, m_CameraTarget, m_CameraUp)), // (0, 0, 3), (0, 0, 0), and (0, 1, 0)
 		m_Camera(std::make_unique<Camera>())
 	{
 		float pos[8][3] =

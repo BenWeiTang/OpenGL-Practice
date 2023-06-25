@@ -69,6 +69,18 @@
     <ClCompile Include="src\Camera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\test\LightingTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ComputeShader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\ComputeShaderTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\test\BoidTest.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="res\shaders\Basic.shader" />
@@ -481,6 +493,11 @@
       <Filter>Header Files</Filter>
     </None>
     <None Include="res\shaders\CubeShader.shader" />
+    <None Include="res\shaders\LightingCube.shader" />
+    <None Include="res\shaders\ComputeShader.shader" />
+    <None Include="res\shaders\ScreenQuad.shader" />
+    <None Include="res\shaders\BoidComputeShader.shader" />
+    <None Include="res\shaders\BoidShader.shader" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Renderer.h">
@@ -1387,6 +1404,18 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\Camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\LightingTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ComputeShader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\ComputeShaderTest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\test\BoidTest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
