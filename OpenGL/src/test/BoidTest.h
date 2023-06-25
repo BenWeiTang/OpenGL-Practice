@@ -27,10 +27,14 @@ namespace test
 		unsigned int m_PositionSSBO;
 		unsigned int m_VelocitySSBO;
 		unsigned int m_AccelerationSSBO;
+		unsigned int m_TransMatrixSSBO;
 		std::unique_ptr<Camera> m_Camera;
 		std::unique_ptr<Shader> m_BoidShader;
-		std::unique_ptr<VertexArray> m_VAO;
-		std::unique_ptr<VertexBuffer> m_VBO;
-		std::unique_ptr<IndexBuffer> m_IBO;
+		//std::unique_ptr<VertexArray> m_VAO;
+		//std::unique_ptr<VertexBuffer> m_VBO;
+		//std::unique_ptr<IndexBuffer> m_IBO;
+		unsigned int m_VAO;
+		unsigned int m_VBO;
+		unsigned int m_IBO;
 	};
 }

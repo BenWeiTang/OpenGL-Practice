@@ -13,6 +13,10 @@ layout(std430, binding = 2) buffer AccSSBO
 {
 	vec4 accelerations[];
 };
+layout(std430, binding = 3) buffer TransMatrixSSBO
+{
+	mat4 transMatrices[];
+};
 
 uniform float u_DeltaTime;
 
@@ -37,6 +41,18 @@ void main()
 	velocities[index] += u_DeltaTime * accelerations[index];
 	//accelerations[index] = (Seperate() + Align() + Cohere()) * u_DeltaTime; //TODO: Check if * u_DeltaTime is needed
 	accelerations[index] = Seperate() + Align() + Cohere();
+
+	// Update transformation matrix
+	/*
+	*  | 1 0 0 x |
+	*  | 0 1 0 y |
+	*  | 0 0 1 z |
+	*  | 0 0 0 1 |
+	*/
+	transMatrices[index][3] = vec4(positions[index].xyz, 1.0);
+	transMatrices[index][0][0] = 1.0;
+	transMatrices[index][1][1] = 1.0;
+	transMatrices[index][2][2] = 1.0;
 }
 
 bool IsValidOther(uint i, uint j)
