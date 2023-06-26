@@ -24,9 +24,10 @@ uniform float u_AlignmentFactor;
 uniform float u_CohesionFactor;
 
 uint index = gl_GlobalInvocationID.x; // For some reason, this cannot be const??
-const float VIEW_DIST = 3.0;
+const float VIEW_DIST = 5.0;
 const float INVERSE_VIEW_DIST = 1.0 / VIEW_DIST;
 const float VIEW_DIST_SQUARED = VIEW_DIST * VIEW_DIST;
+const float VIEW_ANGLE = 3.1415926f * 0.75f;
 const float BOUNDARY = 50.0;
 const float SPEED = 10.0;
 
@@ -70,12 +71,15 @@ void main()
 	transMatrices[index][2][2] = 1.0;
 }
 
-bool IsValidOther(uint i, uint j)
+bool IsValidOther(uint self, uint other)
 {
-	if (i == j) return false;
-	vec4 offset = positions[i] - positions[j];
+	if (self == other) return false;
+	vec4 offset = positions[other] - positions[self];
 	float squaredDist = dot(offset, offset); // Dot product with itself is the square of its mag
-	return squaredDist < VIEW_DIST_SQUARED;
+	vec4 forward = normalize(velocities[self]);
+	vec4 towardOther = normalize(offset);
+	float angle = acos(dot(forward, towardOther));
+	return squaredDist < VIEW_DIST_SQUARED && angle < VIEW_ANGLE;
 }
 
 vec4 Seperate()
