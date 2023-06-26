@@ -12,7 +12,7 @@ namespace test
 		: m_BoidCount(boidCount)
 		, m_ComputeShader(std::make_unique<ComputeShader>("res/shaders/BoidcomputeShader.shader"))
 		, m_BoidShader(std::make_unique<Shader>("res/shaders/BoidShader.shader"))
-		, m_SeperationFactor(1.0f), m_AlignmentFactor(1.0f), m_CohesionFactor(1.0f)
+		, m_SeparationFactor(1.0f), m_AlignmentFactor(1.0f), m_CohesionFactor(1.0f)
 	{
 		float* pos = new float[m_BoidCount * 4]{};
 		float* vel = new float[m_BoidCount * 4]{};
@@ -142,7 +142,7 @@ namespace test
 	{
 		m_ComputeShader->Bind();
 		m_ComputeShader->SetUniform1f("u_DeltaTime", deltaTime);
-		m_ComputeShader->SetUniform1f("u_SeperationFactor", m_SeperationFactor);
+		m_ComputeShader->SetUniform1f("u_SeparationFactor", m_SeparationFactor);
 		m_ComputeShader->SetUniform1f("u_AlignmentFactor", m_AlignmentFactor);
 		m_ComputeShader->SetUniform1f("u_CohesionFactor", m_CohesionFactor);
 		GLCall(glDispatchCompute(m_BoidCount / 1024,1,1));
@@ -166,7 +166,7 @@ namespace test
 		ImGui::Text("Press ESC to show cursor again.");
 		ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::Begin("Controls");
-		ImGui::DragFloat("Seperation", &m_SeperationFactor, 0.1f, 0.0f, 10.0f);
+		ImGui::DragFloat("Separation", &m_SeparationFactor, 0.1f, 0.0f, 10.0f);
 		ImGui::DragFloat("Alignment", &m_AlignmentFactor, 0.1f, 0.0f, 10.0f);
 		ImGui::DragFloat("Cohesion", &m_CohesionFactor, 0.1f, 0.0f, 10.0f);
 		ImGui::End();

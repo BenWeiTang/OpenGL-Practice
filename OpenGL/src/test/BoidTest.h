@@ -31,6 +31,6 @@ namespace test
 		unsigned int m_VAO;
 		unsigned int m_VBO;
 		unsigned int m_IBO;
-		float m_SeperationFactor, m_AlignmentFactor, m_CohesionFactor;
+		float m_SeparationFactor, m_AlignmentFactor, m_CohesionFactor;
 	};
 }

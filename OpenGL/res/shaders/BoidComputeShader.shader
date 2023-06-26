@@ -19,7 +19,7 @@ layout(std430, binding = 3) buffer TransMatrixSSBO
 };
 
 uniform float u_DeltaTime;
-uniform float u_SeperationFactor;
+uniform float u_SeparationFactor;
 uniform float u_AlignmentFactor;
 uniform float u_CohesionFactor;
 
@@ -29,20 +29,18 @@ const float INVERSE_VIEW_DIST = 1.0 / VIEW_DIST;
 const float VIEW_DIST_SQUARED = VIEW_DIST * VIEW_DIST;
 const float VIEW_ANGLE = 3.1415926f * 0.75f;
 const float COSINE_VIEW_ANGLE = cos(VIEW_ANGLE);
-const float BOUNDARY = 50.0;
+const float BOUNDARY = 55.0;
 const float SPEED = 10.0;
 
 bool IsValidOther(uint i, uint j);
-vec4 Seperate();
+vec4 Separate();
 vec4 Align();
 vec4 Cohere();
-void Wrap();
+vec4 AvoidBoundary();
+//void Wrap();
 
 void main()
 {
-	index = gl_GlobalInvocationID.x;
-	Wrap();
-
 	// Get data from SSBO's
 	vec4 pos = positions[index];
 	vec4 vel = velocities[index];
@@ -52,7 +50,7 @@ void main()
 	pos += u_DeltaTime * vel;
 	vel += u_DeltaTime * acc;
 	vel = SPEED * normalize(vel);
-	acc = u_SeperationFactor * Seperate() + u_AlignmentFactor * Align() + u_CohesionFactor * Cohere();
+	acc = u_SeparationFactor * Separate() + u_AlignmentFactor * Align() + u_CohesionFactor * Cohere() + 10 * AvoidBoundary();
 
 	// Set new values to SSBO's 
 	positions[index] = pos;
@@ -81,7 +79,7 @@ bool IsValidOther(uint self, uint other)
 	return squaredDist < VIEW_DIST_SQUARED && cosViewAngle > COSINE_VIEW_ANGLE;
 }
 
-vec4 Seperate()
+vec4 Separate()
 {
 	vec4 desired = vec4(0);
 	int count = 0;
@@ -134,17 +132,62 @@ vec4 Cohere()
 	return steer;
 }
 
-void Wrap()
+vec4 AvoidBoundary()
 {
-	// X component
-	if (positions[index].x > BOUNDARY) positions[index].x = -BOUNDARY;
-	else if (positions[index].x < -BOUNDARY) positions[index].x = BOUNDARY;
+	vec4 pointAhead = positions[index] + velocities[index];
+	vec4 desired = vec4(0);
+	vec4 distToBoundary = vec4(BOUNDARY) - abs(positions[index]);
+	int count = 0;
+	
+	if (pointAhead.x > BOUNDARY)
+	{
+		desired += vec4(-1.0, 0.0, 0.0, 0.0) / pow(distToBoundary.x, 4);
+		count++;
+	}
+	else if (pointAhead.x < -BOUNDARY)
+	{
+		desired += vec4(1.0, 0.0, 0.0, 0.0) / pow(distToBoundary.x, 4);
+		count++;
+	}
 
-	// Y component
-	if (positions[index].y > BOUNDARY) positions[index].y = -BOUNDARY;
-	else if (positions[index].y < -BOUNDARY) positions[index].y = BOUNDARY;
+	if (pointAhead.y > BOUNDARY)
+	{
+		desired += vec4(0.0, -1.0, 0.0, 0.0) / pow(distToBoundary.y, 4);
+		count++;
+	}
+	else if (pointAhead.y < -BOUNDARY)
+	{
+		desired += vec4(0.0, 1.0, 0.0, 0.0) / pow(distToBoundary.y, 4);
+		count++;
+	}
 
-	// Z component
-	if (positions[index].z > BOUNDARY) positions[index].z = -BOUNDARY;
-	else if (positions[index].z < -BOUNDARY) positions[index].z = BOUNDARY;
+	if (pointAhead.z > BOUNDARY)
+	{
+		desired += vec4(0.0, 0.0, -1.0, 0.0) / pow(distToBoundary.z, 4);
+		count++;
+	}
+	else if (pointAhead.z < -BOUNDARY)
+	{
+		desired += vec4(0.0, 0.0, 1.0, 0.0) / pow(distToBoundary.z, 4);
+		count++;
+	}
+	if (count != 0) desired /= count;
+
+	vec4 steer = desired - velocities[index];
+	return steer;
 }
+
+//void Wrap()
+//{
+//	// X component
+//	if (positions[index].x > BOUNDARY) positions[index].x = -BOUNDARY;
+//	else if (positions[index].x < -BOUNDARY) positions[index].x = BOUNDARY;
+//
+//	// Y component
+//	if (positions[index].y > BOUNDARY) positions[index].y = -BOUNDARY;
+//	else if (positions[index].y < -BOUNDARY) positions[index].y = BOUNDARY;
+//
+//	// Z component
+//	if (positions[index].z > BOUNDARY) positions[index].z = -BOUNDARY;
+//	else if (positions[index].z < -BOUNDARY) positions[index].z = BOUNDARY;
+//}
