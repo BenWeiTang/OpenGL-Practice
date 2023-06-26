@@ -21,17 +21,17 @@ namespace test
 		// Set random starting values for pos, vel, and acc
 		for (int i = 0; i < m_BoidCount; i++)
 		{
-			pos[i * 4 + 0] = (float)(std::rand() % 100 - 50);
-			pos[i * 4 + 1] = (float)(std::rand() % 100 - 50);
-			pos[i * 4 + 2] = (float)(std::rand() % 100 - 50);
+			pos[i * 4 + 0] = (std::rand() % 10000 - 5000) / 100.0f;
+			pos[i * 4 + 1] = (std::rand() % 10000 - 5000) / 100.0f;
+			pos[i * 4 + 2] = (std::rand() % 10000 - 5000) / 100.0f;
 			pos[i * 4 + 3] = 1.0f;
-			vel[i * 4 + 0] = (float)(std::rand() % 10 - 5);
-			vel[i * 4 + 1] = (float)(std::rand() % 10 - 5);
-			vel[i * 4 + 2] = (float)(std::rand() % 10 - 5);
+			vel[i * 4 + 0] = (std::rand() % 10000 - 5000) / 100.0f;
+			vel[i * 4 + 1] = (std::rand() % 10000 - 5000) / 100.0f;
+			vel[i * 4 + 2] = (std::rand() % 10000 - 5000) / 100.0f;
 			vel[i * 4 + 3] = 0.0f;
-			acc[i * 4 + 0] = (float)(std::rand() % 20 - 10);
-			acc[i * 4 + 1] = (float)(std::rand() % 20 - 10);
-			acc[i * 4 + 2] = (float)(std::rand() % 20 - 10);
+			acc[i * 4 + 0] = (std::rand() % 2000 - 1000) / 100.0f;
+			acc[i * 4 + 1] = (std::rand() % 2000 - 1000) / 100.0f;
+			acc[i * 4 + 2] = (std::rand() % 2000 - 1000) / 100.0f;
 			acc[i * 4 + 3] = 0.0f;
 		}
 
