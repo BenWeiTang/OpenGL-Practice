@@ -17,6 +17,10 @@ layout(std430, binding = 3) buffer TransMatrixSSBO
 {
 	mat4 transMatrices[];
 };
+layout(std430, binding = 4) buffer NeighborCountSSBO
+{
+	uint neighborCounts[];
+};
 
 uniform float u_DeltaTime;
 uniform float u_SeparationFactor;
@@ -25,7 +29,7 @@ uniform float u_CohesionFactor;
 
 uint index = gl_GlobalInvocationID.x; // For some reason, this cannot be const??
 const float VIEW_DIST = 5.0;
-const float INVERSE_VIEW_DIST = 1.0 / VIEW_DIST;
+//const float INVERSE_VIEW_DIST = 1.0 / VIEW_DIST;
 const float VIEW_DIST_SQUARED = VIEW_DIST * VIEW_DIST;
 const float VIEW_ANGLE = 3.1415926f * 0.75f;
 const float COSINE_VIEW_ANGLE = cos(VIEW_ANGLE);
@@ -37,6 +41,7 @@ vec4 Separate();
 vec4 Align();
 vec4 Cohere();
 vec4 AvoidBoundary();
+void CountNeighbor();
 //void Wrap();
 
 void main()
@@ -68,6 +73,8 @@ void main()
 	transMatrices[index][0][0] = 1.0;
 	transMatrices[index][1][1] = 1.0;
 	transMatrices[index][2][2] = 1.0;
+
+	CountNeighbor();
 }
 
 bool IsValidOther(uint self, uint other)
@@ -175,6 +182,16 @@ vec4 AvoidBoundary()
 
 	vec4 steer = desired - velocities[index];
 	return steer;
+}
+
+void CountNeighbor()
+{
+	uint count = 0;
+	for (uint i = 0; i < gl_NumWorkGroups.x * gl_WorkGroupSize.x; i++)
+	{
+		if (IsValidOther(index, i)) count++;
+	}
+	neighborCounts[index] = count;
 }
 
 //void Wrap()

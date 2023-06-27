@@ -27,6 +27,7 @@ namespace test
 		unsigned int m_VelocitySSBO;
 		unsigned int m_AccelerationSSBO;
 		unsigned int m_TransMatrixSSBO;
+		unsigned int m_NeighborCountSSBO;
 		std::unique_ptr<Shader> m_BoidShader;
 		unsigned int m_VAO;
 		unsigned int m_VBO;
