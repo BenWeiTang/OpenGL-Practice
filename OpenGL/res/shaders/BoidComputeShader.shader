@@ -13,11 +13,7 @@ layout(std430, binding = 2) buffer AccSSBO
 {
 	vec4 accelerations[];
 };
-layout(std430, binding = 3) buffer TransMatrixSSBO
-{
-	mat4 transMatrices[];
-};
-layout(std430, binding = 4) buffer NeighborCountSSBO
+layout(std430, binding = 3) buffer NeighborCountSSBO
 {
 	uint neighborCounts[];
 };
@@ -29,7 +25,6 @@ uniform float u_CohesionFactor;
 
 uint index = gl_GlobalInvocationID.x; // For some reason, this cannot be const??
 const float VIEW_DIST = 5.0;
-//const float INVERSE_VIEW_DIST = 1.0 / VIEW_DIST;
 const float VIEW_DIST_SQUARED = VIEW_DIST * VIEW_DIST;
 const float VIEW_ANGLE = 3.1415926f * 0.75f;
 const float COSINE_VIEW_ANGLE = cos(VIEW_ANGLE);
@@ -42,7 +37,6 @@ vec4 Align();
 vec4 Cohere();
 vec4 AvoidBoundary();
 void CountNeighbor();
-//void Wrap();
 
 void main()
 {
@@ -61,18 +55,6 @@ void main()
 	positions[index] = pos;
 	velocities[index] = vel;
 	accelerations[index] = acc;
-
-	// Update transformation matrix
-	/*
-	*  | 1 0 0 x |
-	*  | 0 1 0 y |
-	*  | 0 0 1 z |
-	*  | 0 0 0 1 |
-	*/
-	transMatrices[index][3] = vec4(positions[index].xyz, 1.0);
-	transMatrices[index][0][0] = 1.0;
-	transMatrices[index][1][1] = 1.0;
-	transMatrices[index][2][2] = 1.0;
 
 	CountNeighbor();
 }
@@ -193,18 +175,3 @@ void CountNeighbor()
 	}
 	neighborCounts[index] = count;
 }
-
-//void Wrap()
-//{
-//	// X component
-//	if (positions[index].x > BOUNDARY) positions[index].x = -BOUNDARY;
-//	else if (positions[index].x < -BOUNDARY) positions[index].x = BOUNDARY;
-//
-//	// Y component
-//	if (positions[index].y > BOUNDARY) positions[index].y = -BOUNDARY;
-//	else if (positions[index].y < -BOUNDARY) positions[index].y = BOUNDARY;
-//
-//	// Z component
-//	if (positions[index].z > BOUNDARY) positions[index].z = -BOUNDARY;
-//	else if (positions[index].z < -BOUNDARY) positions[index].z = BOUNDARY;
-//}

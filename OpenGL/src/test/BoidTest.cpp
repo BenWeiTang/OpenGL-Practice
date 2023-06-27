@@ -39,7 +39,6 @@ namespace test
 		GLCall(glGenBuffers(1, &m_PositionSSBO));
 		GLCall(glGenBuffers(1, &m_VelocitySSBO));
 		GLCall(glGenBuffers(1, &m_AccelerationSSBO));
-		GLCall(glGenBuffers(1, &m_TransMatrixSSBO));
 		GLCall(glGenBuffers(1, &m_NeighborCountSSBO));
 
 		// Copy data into position buffer and bind it to index 0
@@ -57,15 +56,10 @@ namespace test
 		GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, m_BoidCount * 4 * sizeof(float), acc, GL_DYNAMIC_READ));
 		GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_AccelerationSSBO));
 
-		// Generate an uninitialized SSBO for the transformation matrices and bind it to index 3
-		GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_TransMatrixSSBO));
-		GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, m_BoidCount * 16 * sizeof(float), nullptr, GL_DYNAMIC_READ));
-		GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_TransMatrixSSBO));
-
-		// Generate an uninitialized SSBO for the neighbor counts and bind it to index 4
+		// Generate an uninitialized SSBO for the neighbor counts and bind it to index 3
 		GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_NeighborCountSSBO));
 		GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, m_BoidCount * sizeof(unsigned int), nullptr, GL_DYNAMIC_READ));
-		GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 4, m_NeighborCountSSBO));
+		GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_NeighborCountSSBO));
 
 		GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0)); // Unbind
 
