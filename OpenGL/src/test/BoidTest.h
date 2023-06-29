@@ -32,5 +32,7 @@ namespace test
 		unsigned int m_VBO;
 		unsigned int m_IBO;
 		float m_SeparationFactor, m_AlignmentFactor, m_CohesionFactor;
+		float m_MinColor[4], m_MaxColor[4];
+		float m_CameraRotation;
 	};
 }

@@ -69,9 +69,11 @@ layout(location = 0) out vec4 color;
 
 flat in uint v_NeighborCount;
 
+uniform vec4 u_MinColor;
+uniform vec4 u_MaxColor;
+
 void main()
 {
-	// Lerping between purple-ish read and Tiffany blue
 	float lerpValue = smoothstep(0.0, 50.0, v_NeighborCount);
-	color = mix(vec4(1.0, 0.0, 0.125, 1.0), vec4(0.039, 0.727, 0.707, 1.0), lerpValue);
+	color = mix(u_MinColor, u_MaxColor, lerpValue);
 }
