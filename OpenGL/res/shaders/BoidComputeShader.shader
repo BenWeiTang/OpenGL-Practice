@@ -13,34 +13,33 @@ layout(std430, binding = 2) buffer AccSSBO
 {
 	vec4 accelerations[];
 };
-layout(std430, binding = 3) buffer TransMatrixSSBO
+layout(std430, binding = 3) buffer NeighborCountSSBO
 {
-	mat4 transMatrices[];
+	uint neighborCounts[];
 };
 
 uniform float u_DeltaTime;
-uniform float u_SeperationFactor;
+uniform float u_SeparationFactor;
 uniform float u_AlignmentFactor;
 uniform float u_CohesionFactor;
 
 uint index = gl_GlobalInvocationID.x; // For some reason, this cannot be const??
-const float VIEW_DIST = 3.0;
-const float INVERSE_VIEW_DIST = 1.0 / VIEW_DIST;
+const float VIEW_DIST = 5.0;
 const float VIEW_DIST_SQUARED = VIEW_DIST * VIEW_DIST;
-const float BOUNDARY = 50.0;
+const float VIEW_ANGLE = 3.1415926f * 0.75f;
+const float COSINE_VIEW_ANGLE = cos(VIEW_ANGLE);
+const float BOUNDARY = 55.0;
 const float SPEED = 10.0;
 
 bool IsValidOther(uint i, uint j);
-vec4 Seperate();
+vec4 Separate();
 vec4 Align();
 vec4 Cohere();
-void Wrap();
+vec4 AvoidBoundary();
+void CountNeighbor();
 
 void main()
 {
-	index = gl_GlobalInvocationID.x;
-	Wrap();
-
 	// Get data from SSBO's
 	vec4 pos = positions[index];
 	vec4 vel = velocities[index];
@@ -50,35 +49,26 @@ void main()
 	pos += u_DeltaTime * vel;
 	vel += u_DeltaTime * acc;
 	vel = SPEED * normalize(vel);
-	acc = u_SeperationFactor * Seperate() + u_AlignmentFactor * Align() + u_CohesionFactor * Cohere();
+	acc = u_SeparationFactor * Separate() + u_AlignmentFactor * Align() + u_CohesionFactor * Cohere() + 10 * AvoidBoundary();
 
 	// Set new values to SSBO's 
 	positions[index] = pos;
 	velocities[index] = vel;
 	accelerations[index] = acc;
 
-	// Update transformation matrix
-	/*
-	*  | 1 0 0 x |
-	*  | 0 1 0 y |
-	*  | 0 0 1 z |
-	*  | 0 0 0 1 |
-	*/
-	transMatrices[index][3] = vec4(positions[index].xyz, 1.0);
-	transMatrices[index][0][0] = 1.0;
-	transMatrices[index][1][1] = 1.0;
-	transMatrices[index][2][2] = 1.0;
+	CountNeighbor();
 }
 
-bool IsValidOther(uint i, uint j)
+bool IsValidOther(uint self, uint other)
 {
-	if (i == j) return false;
-	vec4 offset = positions[i] - positions[j];
+	if (self == other) return false;
+	vec4 offset = positions[other] - positions[self];
 	float squaredDist = dot(offset, offset); // Dot product with itself is the square of its mag
-	return squaredDist < VIEW_DIST_SQUARED;
+	float cosViewAngle = dot(normalize(velocities[self]), normalize(offset));
+	return squaredDist < VIEW_DIST_SQUARED && cosViewAngle > COSINE_VIEW_ANGLE;
 }
 
-vec4 Seperate()
+vec4 Separate()
 {
 	vec4 desired = vec4(0);
 	int count = 0;
@@ -131,17 +121,57 @@ vec4 Cohere()
 	return steer;
 }
 
-void Wrap()
+vec4 AvoidBoundary()
 {
-	// X component
-	if (positions[index].x > BOUNDARY) positions[index].x = -BOUNDARY;
-	else if (positions[index].x < -BOUNDARY) positions[index].x = BOUNDARY;
+	vec4 pointAhead = positions[index] + velocities[index];
+	vec4 desired = vec4(0);
+	vec4 distToBoundary = vec4(BOUNDARY) - abs(positions[index]);
+	int count = 0;
+	
+	if (pointAhead.x > BOUNDARY)
+	{
+		desired += vec4(-1.0, 0.0, 0.0, 0.0) / pow(distToBoundary.x, 4);
+		count++;
+	}
+	else if (pointAhead.x < -BOUNDARY)
+	{
+		desired += vec4(1.0, 0.0, 0.0, 0.0) / pow(distToBoundary.x, 4);
+		count++;
+	}
 
-	// Y component
-	if (positions[index].y > BOUNDARY) positions[index].y = -BOUNDARY;
-	else if (positions[index].y < -BOUNDARY) positions[index].y = BOUNDARY;
+	if (pointAhead.y > BOUNDARY)
+	{
+		desired += vec4(0.0, -1.0, 0.0, 0.0) / pow(distToBoundary.y, 4);
+		count++;
+	}
+	else if (pointAhead.y < -BOUNDARY)
+	{
+		desired += vec4(0.0, 1.0, 0.0, 0.0) / pow(distToBoundary.y, 4);
+		count++;
+	}
 
-	// Z component
-	if (positions[index].z > BOUNDARY) positions[index].z = -BOUNDARY;
-	else if (positions[index].z < -BOUNDARY) positions[index].z = BOUNDARY;
+	if (pointAhead.z > BOUNDARY)
+	{
+		desired += vec4(0.0, 0.0, -1.0, 0.0) / pow(distToBoundary.z, 4);
+		count++;
+	}
+	else if (pointAhead.z < -BOUNDARY)
+	{
+		desired += vec4(0.0, 0.0, 1.0, 0.0) / pow(distToBoundary.z, 4);
+		count++;
+	}
+	if (count != 0) desired /= count;
+
+	vec4 steer = desired - velocities[index];
+	return steer;
+}
+
+void CountNeighbor()
+{
+	uint count = 0;
+	for (uint i = 0; i < gl_NumWorkGroups.x * gl_WorkGroupSize.x; i++)
+	{
+		if (IsValidOther(index, i)) count++;
+	}
+	neighborCounts[index] = count;
 }

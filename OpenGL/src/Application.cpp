@@ -21,7 +21,7 @@ int main(void)
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    window = glfwCreateWindow(960, 540, "OpenGL Practice", NULL, NULL);
+    window = glfwCreateWindow(1920, 1080, "OpenGL Practice", NULL, NULL);
     if (!window)
     {
         glfwTerminate();

@@ -5,6 +5,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <iostream>
 #include <cstdlib>
+#include <time.h>
 
 namespace test
 {
@@ -12,26 +13,30 @@ namespace test
 		: m_BoidCount(boidCount)
 		, m_ComputeShader(std::make_unique<ComputeShader>("res/shaders/BoidcomputeShader.shader"))
 		, m_BoidShader(std::make_unique<Shader>("res/shaders/BoidShader.shader"))
-		, m_SeperationFactor(1.0f), m_AlignmentFactor(1.0f), m_CohesionFactor(1.0f)
+		, m_SeparationFactor(1.0f), m_AlignmentFactor(1.0f), m_CohesionFactor(1.0f)
+		, m_MinColor{ 1.0, 0.0f, 0.125f, 1.0f } // Purple-ish red
+		, m_MaxColor{ 0.039f, 0.727, 0.707f, 1.0f } // Tiffany Blue
+		, m_CameraRotation(180.0f)
 	{
 		float* pos = new float[m_BoidCount * 4]{};
 		float* vel = new float[m_BoidCount * 4]{};
 		float* acc = new float[m_BoidCount * 4]{};
 
 		// Set random starting values for pos, vel, and acc
+		srand(time(0));
 		for (int i = 0; i < m_BoidCount; i++)
 		{
-			pos[i * 4 + 0] = (float)(std::rand() % 100 - 50);
-			pos[i * 4 + 1] = (float)(std::rand() % 100 - 50);
-			pos[i * 4 + 2] = (float)(std::rand() % 100 - 50);
+			pos[i * 4 + 0] = (std::rand() % 10000 - 5000) / 100.0f;
+			pos[i * 4 + 1] = (std::rand() % 10000 - 5000) / 100.0f;
+			pos[i * 4 + 2] = (std::rand() % 10000 - 5000) / 100.0f;
 			pos[i * 4 + 3] = 1.0f;
-			vel[i * 4 + 0] = (float)(std::rand() % 10 - 5);
-			vel[i * 4 + 1] = (float)(std::rand() % 10 - 5);
-			vel[i * 4 + 2] = (float)(std::rand() % 10 - 5);
+			vel[i * 4 + 0] = (std::rand() % 10000 - 5000) / 100.0f;
+			vel[i * 4 + 1] = (std::rand() % 10000 - 5000) / 100.0f;
+			vel[i * 4 + 2] = (std::rand() % 10000 - 5000) / 100.0f;
 			vel[i * 4 + 3] = 0.0f;
-			acc[i * 4 + 0] = (float)(std::rand() % 20 - 10);
-			acc[i * 4 + 1] = (float)(std::rand() % 20 - 10);
-			acc[i * 4 + 2] = (float)(std::rand() % 20 - 10);
+			acc[i * 4 + 0] = (std::rand() % 2000 - 1000) / 100.0f;
+			acc[i * 4 + 1] = (std::rand() % 2000 - 1000) / 100.0f;
+			acc[i * 4 + 2] = (std::rand() % 2000 - 1000) / 100.0f;
 			acc[i * 4 + 3] = 0.0f;
 		}
 
@@ -39,7 +44,7 @@ namespace test
 		GLCall(glGenBuffers(1, &m_PositionSSBO));
 		GLCall(glGenBuffers(1, &m_VelocitySSBO));
 		GLCall(glGenBuffers(1, &m_AccelerationSSBO));
-		GLCall(glGenBuffers(1, &m_TransMatrixSSBO));
+		GLCall(glGenBuffers(1, &m_NeighborCountSSBO));
 
 		// Copy data into position buffer and bind it to index 0
 		GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_PositionSSBO));
@@ -56,10 +61,10 @@ namespace test
 		GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, m_BoidCount * 4 * sizeof(float), acc, GL_DYNAMIC_READ));
 		GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, m_AccelerationSSBO));
 
-		// Generate an uninitialized SSBO for the transformation matrices and bind it to index 3
-		GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_TransMatrixSSBO));
-		GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, m_BoidCount * 16 * sizeof(float), nullptr, GL_DYNAMIC_READ));
-		GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_TransMatrixSSBO));
+		// Generate an uninitialized SSBO for the neighbor counts and bind it to index 3
+		GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, m_NeighborCountSSBO));
+		GLCall(glBufferData(GL_SHADER_STORAGE_BUFFER, m_BoidCount * sizeof(unsigned int), nullptr, GL_DYNAMIC_READ));
+		GLCall(glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, m_NeighborCountSSBO));
 
 		GLCall(glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0)); // Unbind
 
@@ -129,8 +134,6 @@ namespace test
 		delete[] indices;
 
 		m_BoidShader->Bind();
-		glm::mat4 viewMatrix = glm::lookAt(glm::vec3(100.0f, 100.0f, -100.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		m_BoidShader->SetUniformMat4("u_View", viewMatrix);
 		m_BoidShader->SetUniformMat4("u_Projection", glm::perspective(glm::radians(45.0f), 960.0f / 540.0f, 0.1f, 300.0f));
 	}
 
@@ -142,7 +145,7 @@ namespace test
 	{
 		m_ComputeShader->Bind();
 		m_ComputeShader->SetUniform1f("u_DeltaTime", deltaTime);
-		m_ComputeShader->SetUniform1f("u_SeperationFactor", m_SeperationFactor);
+		m_ComputeShader->SetUniform1f("u_SeparationFactor", m_SeparationFactor);
 		m_ComputeShader->SetUniform1f("u_AlignmentFactor", m_AlignmentFactor);
 		m_ComputeShader->SetUniform1f("u_CohesionFactor", m_CohesionFactor);
 		GLCall(glDispatchCompute(m_BoidCount / 1024,1,1));
@@ -155,6 +158,12 @@ namespace test
 		GLCall(glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT));
 
 		m_BoidShader->Bind();
+		m_BoidShader->SetUniform4f("u_MinColor", glm::vec4(m_MinColor[0], m_MinColor[1], m_MinColor[2], m_MinColor[3]));
+		m_BoidShader->SetUniform4f("u_MaxColor", glm::vec4(m_MaxColor[0], m_MaxColor[1], m_MaxColor[2], m_MaxColor[3]));
+		float xPos = 150.0f * glm::sin(glm::radians(m_CameraRotation));
+		float zPos = 150.0f * glm::cos(glm::radians(m_CameraRotation));
+		glm::mat4 viewMatrix = glm::lookAt(glm::vec3(xPos, 100.0f, zPos), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+		m_BoidShader->SetUniformMat4("u_View", viewMatrix);
 		GLCall(glBindVertexArray(m_VAO));
 		GLCall(glBindBuffer(GL_ARRAY_BUFFER, m_VBO));
 		GLCall(glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_IBO));
@@ -165,10 +174,20 @@ namespace test
 	{
 		ImGui::Text("Press ESC to show cursor again.");
 		ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		ImGui::Begin("Controls");
-		ImGui::DragFloat("Seperation", &m_SeperationFactor, 0.1f, 0.0f, 10.0f);
+
+		ImGui::Begin("Boids Controls");
+		ImGui::DragFloat("Separation", &m_SeparationFactor, 0.1f, 0.0f, 10.0f);
 		ImGui::DragFloat("Alignment", &m_AlignmentFactor, 0.1f, 0.0f, 10.0f);
 		ImGui::DragFloat("Cohesion", &m_CohesionFactor, 0.1f, 0.0f, 10.0f);
+		ImGui::End();
+
+		ImGui::Begin("Colors");
+		ImGui::ColorEdit4("Min Density Color", m_MinColor);
+		ImGui::ColorEdit4("Max Density Color", m_MaxColor);
+		ImGui::End();
+
+		ImGui::Begin("Camera");
+		ImGui::SliderFloat("Rotatation", &m_CameraRotation, 0.0f, 360.0f);
 		ImGui::End();
 	}
 }
